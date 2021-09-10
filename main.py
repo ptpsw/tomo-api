@@ -20,8 +20,9 @@ settings = get_settings()
 
 def get_db():
     conn = pymysql.connect(
-        host=settings.mysql_host, user=settings.mysql_user, 
-        password=settings.mysql_pass, database=settings.mysql_db)
+        host=settings.mysql_host, port=settings.mysql_port, 
+        user=settings.mysql_user, password=settings.mysql_pass, 
+        database=settings.mysql_db)
     try:
         yield conn
     finally:
