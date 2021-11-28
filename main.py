@@ -41,10 +41,15 @@ class Station(BaseModel):
     lon: Optional[float] = None
     station_links: List[StationLink]
 
-class MaxSNR(BaseModel):
+class SDE(BaseModel):
     station_id: str
     timestamp: datetime
-    max_snr: float
+    sde: float
+
+class SDR(BaseModel):
+    station_id: str
+    timestamp: datetime
+    travel_time: float
 
 class Temperature(BaseModel):
     station_link_id: int
@@ -78,8 +83,8 @@ def get_all_stations(conn: Connection = Depends(get_db)):
                 """, (id, id)
             )
             links_result = cur.fetchall()
+            station_links = []
             if links_result:
-                station_links = []
                 for link in links_result:
                     link_id, link_name, source_id, dest_id = link
                     station_link = StationLink(
@@ -93,24 +98,43 @@ def get_all_stations(conn: Connection = Depends(get_db)):
             stations_list.append(station)
     return stations_list
 
-@app.get("/v0/maxsnr/", response_model=List[MaxSNR])
-def get_maxsnr_by_station(station_id: str, conn: Connection = Depends(get_db)):
+@app.get("/v0/sde/", response_model=List[SDE])
+def get_sde_by_station(station_id: str, conn: Connection = Depends(get_db)):
     cur = conn.cursor()
-    cur.execute('SELECT station_id, timestamp, value FROM max_snr\
+    cur.execute('SELECT station_id, timestamp, value FROM sde\
         WHERE station_id=%s', (station_id))
     results = cur.fetchall()
-    max_snr_list = []
+    sde_list = []
     print(len(results))
     if results:
         for row in results:
             station_id, timestamp, value = row
-            max_snr = MaxSNR(
+            sde = SDE(
                 station_id = station_id,
                 timestamp = timestamp,
-                max_snr = value
+                sde = value
             )
-            max_snr_list.append(max_snr)
-    return max_snr_list
+            sde_list.append(sde)
+    return sde_list
+
+@app.get("/v0/sdr/", response_model=List[SDR])
+def get_sdr_by_station(station_id: str, conn: Connection = Depends(get_db)):
+    cur = conn.cursor()
+    cur.execute('SELECT station_id, timestamp, value FROM sdrs\
+        WHERE station_id=%s', (station_id))
+    results = cur.fetchall()
+    sdr_list = []
+    print(len(results))
+    if results:
+        for row in results:
+            station_id, timestamp, value = row
+            sdr = SDR(
+                station_id = station_id,
+                timestamp = timestamp,
+                travel_time = value
+            )
+            sdr_list.append(sdr)
+    return sdr_list
     
 @app.get("/v0/temperature/", response_model=List[Temperature])
 def get_temperature_by_station_link(station_link_id: int, conn: Connection = Depends(get_db)):
