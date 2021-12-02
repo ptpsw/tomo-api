@@ -120,7 +120,7 @@ def get_sde_by_station(station_id: str, conn: Connection = Depends(get_db)):
 @app.get("/v0/sdr/", response_model=List[SDR])
 def get_sdr_by_station(station_id: str, conn: Connection = Depends(get_db)):
     cur = conn.cursor()
-    cur.execute('SELECT station_id, timestamp, value FROM sdrs\
+    cur.execute('SELECT station_id, timestamp, value FROM sdr\
         WHERE station_id=%s', (station_id))
     results = cur.fetchall()
     sdr_list = []
