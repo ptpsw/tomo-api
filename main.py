@@ -11,7 +11,15 @@ from pymysql.connections import Connection
 
 import config
 
-app = FastAPI()
+description = """
+    note: SDE and SDR shows last 1 day data by default. You can fill the start and end time parameter.
+"""
+
+app = FastAPI(
+    title="InaCAT API",
+    description=description,
+    version="0.0.1",
+)
 
 app.add_middleware(
     CORSMiddleware,
