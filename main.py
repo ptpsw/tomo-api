@@ -4,6 +4,7 @@ from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 import pymysql.cursors
 from pymysql.connections import Connection
@@ -11,6 +12,14 @@ from pymysql.connections import Connection
 import config
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @lru_cache()
 def get_settings():
