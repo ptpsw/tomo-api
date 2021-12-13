@@ -3,7 +3,7 @@ from os import times
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi.middleware.cors import CORSMiddleware
 
 import pymysql.cursors
@@ -108,13 +108,20 @@ def get_all_stations(conn: Connection = Depends(get_db)):
     return stations_list
 
 @app.get("/v0/sde/", response_model=List[SDE])
-def get_sde_by_station(station_id: str, conn: Connection = Depends(get_db)):
+def get_sde_by_station(station_id: str, 
+                       start_time: Optional[datetime]=None, 
+                       end_time: Optional[datetime]=None, 
+                       conn: Connection = Depends(get_db)):
+    if start_time is None:
+        start_time = datetime.now() - timedelta(days=1)
+    if end_time is None:
+        end_time = datetime.now()
     cur = conn.cursor()
     cur.execute('SELECT station_id, timestamp, value FROM sde\
-        WHERE station_id=%s', (station_id))
+        WHERE station_id=%s AND timestamp>=%s AND timestamp<=%s', 
+        (station_id, start_time, end_time))
     results = cur.fetchall()
     sde_list = []
-    print(len(results))
     if results:
         for row in results:
             station_id, timestamp, value = row
@@ -127,10 +134,18 @@ def get_sde_by_station(station_id: str, conn: Connection = Depends(get_db)):
     return sde_list
 
 @app.get("/v0/sdr/", response_model=List[SDR])
-def get_sdr_by_station(station_id: str, conn: Connection = Depends(get_db)):
+def get_sdr_by_station(station_id: str,
+                       start_time: Optional[datetime]=None, 
+                       end_time: Optional[datetime]=None, 
+                       conn: Connection = Depends(get_db)):
+    if start_time is None:
+        start_time = datetime.now() - timedelta(days=1)
+    if end_time is None:
+        end_time = datetime.now()
     cur = conn.cursor()
     cur.execute('SELECT station_id, timestamp, value FROM sdr\
-        WHERE station_id=%s', (station_id))
+        WHERE station_id=%s AND timestamp>=%s AND timestamp<=%s', 
+        (station_id, start_time, end_time))
     results = cur.fetchall()
     sdr_list = []
     print(len(results))
