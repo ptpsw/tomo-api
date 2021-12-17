@@ -11,6 +11,12 @@ from pymysql.connections import Connection
 
 import config
 
+@lru_cache()
+def get_settings():
+    return config.Settings()
+
+settings = get_settings()
+
 description = """
     note: SDE and SDR shows last 1 day data by default. You can fill the start and end time parameter.
 """
@@ -23,17 +29,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-@lru_cache()
-def get_settings():
-    return config.Settings()
-
-settings = get_settings()
 
 def get_db():
     conn = pymysql.connect(
