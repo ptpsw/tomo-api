@@ -123,7 +123,9 @@ def get_sde_by_station(station_id: str,
     if start_time is None:
         start_time = datetime.now() - timedelta(days=1)
     if end_time is None:
-        end_time = datetime.now()
+        #TODO hotfix timezone issue with adding 3 hours ahead
+        #should sync time using UTC
+        end_time = datetime.now() + timedelta(hours=3)
     cur = conn.cursor()
     cur.execute('SELECT station_id, timestamp, value FROM sde\
         WHERE station_id=%s AND timestamp>=%s AND timestamp<=%s', 
@@ -149,7 +151,8 @@ def get_sdr_by_station(station_id: str,
     if start_time is None:
         start_time = datetime.now() - timedelta(days=1)
     if end_time is None:
-        end_time = datetime.now()
+        #TODO hotfix timezone issue with adding 3 hours ahead
+        end_time = datetime.now() + timedelta(hours=3)
     cur = conn.cursor()
     cur.execute('SELECT station_id, timestamp, value FROM sdr\
         WHERE station_id=%s AND timestamp>=%s AND timestamp<=%s', 
